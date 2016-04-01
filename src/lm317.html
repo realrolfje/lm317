@@ -1,75 +1,79 @@
 <html>
+<head>
+  <script language="JavaScript">
+	function calculate(form) {
+		var e12 = [0, 100, 120, 150, 180, 220, 270, 330, 390, 470, 560, 680, 820,
+					 1000, 1200, 1500, 1800, 2200, 2700, 3300, 3900, 4700, 5600, 6800, 8200];
+				   
+		var targetVoltage = form.targetv.value;
+	  
+		if (isNaN(targetVoltage)){
+					  document.getElementById("r1").innerHTML = "-";
+					  document.getElementById("r2").innerHTML = "-";
+					  document.getElementById("r2c").innerHTML = "-";
+					  document.getElementById("Vout").innerHTML = "-";
+					  document.getElementById("Vin").innerHTML = "-";
+					  return;
+	   }	  
+	  
+	  
+		var bestV = 0;
+		var bestR1 = 0;
+		var bestR2 = 0;
+		var bestR2c = 0;
+
+		// R1 index
+		for (r1=1 ; r1 < 11 ; r1++) {
+			// R2 index
+			for (r2=13; r2 < e12.length; r2++) {
+				// R2 correction index (only low values)
+				for (r2c=0; r2c < 12; r2c++) {
+				  var newV = calcLm(e12[r1], e12[r2], e12[r2c]);
+				  if (Math.abs(targetVoltage - bestV) > Math.abs(targetVoltage - newV)) {
+					
+					  // Found a better value!
+					  bestV = newV;
+					  bestR1 = e12[r1];
+					  bestR2 = e12[r2];
+					  bestR2c = e12[r2c];
+				  }
+				}
+			}
+		}
+	  
+		  if (bestV > 0 && bestV < 35) {
+					  document.getElementById("r1").innerHTML = bestR1 + " \u2126";
+					  document.getElementById("r2").innerHTML = bestR2 + " \u2126";
+					  document.getElementById("r2c").innerHTML = bestR2c + " \u2126";
+					  document.getElementById("Vout").innerHTML = bestV.toFixed(2)  + " V";
+					  document.getElementById("Vin").innerHTML = "min " + (bestV+3).toFixed(2) + " V";
+		  } else {
+					  document.getElementById("r1").innerHTML = "-";
+					  document.getElementById("r2").innerHTML = "-";
+					  document.getElementById("r2c").innerHTML = "-";
+					  document.getElementById("Vout").innerHTML = "-";
+					  document.getElementById("Vin").innerHTML = "-";
+		  }
+
+	  
+	}
+
+	function calcLm(r1, r2, r2c) {
+	   return 1.25 + ((1.25 * (r2 + r2c)) / r1);
+	}
+  </script>
+</head>
 <body>
 
-<script language="JavaScript">
-  function calculate(form) {
-	  var e12 = [100, 120, 150, 180, 220, 270, 330, 390, 470, 560, 680, 820,
-				   1000, 1200, 1500, 1800, 2200, 2700, 3300, 3900, 4700, 5600, 6800, 8200];
-				   
-	  var targetVoltage = form.targetv.value;
-	  
-	  if (isNaN(targetVoltage)){
-					document.getElementById("r1").innerHTML = "-";
-					document.getElementById("r2").innerHTML = "-";
-					document.getElementById("r2c").innerHTML = "-";
-					document.getElementById("Vout").innerHTML = "-";
-					document.getElementById("Vin").innerHTML = "-";
-					return;
-	 }	  
-	  
-	  
-	  var bestV = 0;
-	  var bestR1 = 0;
-	  var bestR2 = 0;
-	  var bestR2c = 0;
-
-	  // R1 index
-	  for (r1=0 ; r1 < 11 ; r1++) {
-		  // R2 index
-		  for (r2=12; r2 < e12.length; r2++) {
-			  // R2 correction index (only low values)
-			  for (r2c=0; r2c < 11; r2c++) {
-				var newV = calcLm(e12[r1], e12[r2], e12[r2c]);
-				if (Math.abs(targetVoltage - bestV) > Math.abs(targetVoltage - newV)) {
-					
-					// Found a better value!
-					bestV = newV;
-					bestR1 = e12[r1];
-					bestR2 = e12[r2];
-					bestR2c = e12[r2c];
-				}
-			  }
-		  }
-	  }
-	  
-		if (bestV > 0 && bestV < 35) {
- 					document.getElementById("r1").innerHTML = bestR1 + " \u2126";
-					document.getElementById("r2").innerHTML = bestR2 + " \u2126";
-					document.getElementById("r2c").innerHTML = bestR2c + " \u2126";
-					document.getElementById("Vout").innerHTML = bestV.toFixed(2);
-					document.getElementById("Vin").innerHTML = (bestV+3).toFixed(2);
-		} else {
-					document.getElementById("r1").innerHTML = "-";
-					document.getElementById("r2").innerHTML = "-";
-					document.getElementById("r2c").innerHTML = "-";
-					document.getElementById("Vout").innerHTML = "-";
-					document.getElementById("Vin").innerHTML = "-";
-		}
-
-	  
-  }
-
-  function calcLm(r1, r2, r2c) {
-	 return 1.25 + ((1.25 * (r2 + r2c)) / r1);
-  }
-</script>
+<img src="lm317-voltage.png" style="z-index: -1"/>
 
 <form name="convert" action="#" method="get">
 Target voltage:<input name="targetv" onkeyup="calculate(this.form)"/><br/>
-R1 = <span id="r1"></span><br/>
-R2 = <span id="r2"></span> + <span id="r2c"></span><br/>
-Output Voltage = <span id="Vout"></span><br/>
-Input Voltage = <span id="Vin"></span><br/>
+<span id="r1"  style="position:absolute;left:180px;top:270px;font-size:20px;">-</span><br/>
+<span id="r2"  style="position:absolute;left:160px;top:380px;font-size:20px;">-</span><br/>
+<span id="r2c" style="position:absolute;left:160px;top:470px;font-size:20px;">-</span><br/>
+<span id="Vin" style="position:absolute;left:550px;top:230px;font-size:20px;">-</span><br/>
+<span id="Vout"  style="position:absolute;left:550px;top:320px;font-size:20px;">-</span><br/>
 </form>
 
 </body>
